@@ -11,13 +11,11 @@ func main(){
   fmt.Println("-------------------\n\n")
   var lex *lexer.Lexer
   if len(os.Args)==1{
-  		lex=lexer.NewLexerFromString("This is a test.")
+  		lex=lexer.NewLexerFromString("This is a test.=+_")
   	} else {
   		lex=lexer.NewLexerFromFile(os.Args[1])
   	}
   
-  for lex.HasNext(){
-  	lex.ReadChar()
-  }
+  lex.ReadTokens()
 
 }

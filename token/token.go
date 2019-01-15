@@ -1,5 +1,10 @@
 package token
 
+import(
+	"fmt"
+	
+)
+
 const(
 ILLEGAL = "ILLEGAL"
 EOF = "EOF"
@@ -15,7 +20,7 @@ LBRACE = "{"
 RBRACE = "}"
 
 FUNCTION = "FUNCTION"
-LET = "LET"
+VAR = "VAR"
 
 )
 
@@ -24,4 +29,8 @@ type TokenType string;
 type Token struct {
 	Type TokenType
 	Literal string
+}
+
+func (t Token) ToString() string{
+	return fmt.Sprintf("Type: %s , Literal: %s", t.Type,t.Literal)
 }

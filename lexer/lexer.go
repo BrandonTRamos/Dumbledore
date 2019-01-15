@@ -1,7 +1,7 @@
 package lexer
 import (
 
-	// "Dumbledore/token"
+	"Dumbledore/token"
 	"fmt"
 	"io/ioutil"
 
@@ -29,7 +29,7 @@ func NewLexerFromFile(fileName string) *Lexer {
 }
 
 func (lexer *Lexer) HasNext() bool{
-		if lexer.nextPosition >= len(lexer.input){
+		if lexer.currentPosition >= len(lexer.input){
 		lexer.ch =0
 		return false;
 	}
@@ -46,6 +46,45 @@ func (lexer *Lexer) ReadChar() {
 	}
 	lexer.currentPosition =lexer.nextPosition 	
 	lexer.nextPosition+=1
-	fmt.Println(string(lexer.ch))
+}
+
+func (lexer *Lexer) NextToken() token.Token{
+	var tok token.Token
+
+	switch lexer.ch{
+		case '=':
+			tok = newTokenFromChar(token.ASSIGN,lexer.ch)
+		case '+':
+			tok = newTokenFromChar(token.PLUS,lexer.ch)
+		default:
+			if(isLetter(lexer.ch)){
+				tok = newTokenFromChar(token.IDENTIFIER,lexer.ch)
+			} else{
+				fmt.Printf("Illegal char byte (hex notation): %x\n",lexer.ch)
+				tok = newTokenFromChar(token.ILLEGAL,lexer.ch)
+				}
+			
+	}
+	lexer.ReadChar();
+	return tok;
+}
+
+func (lexer *Lexer) ReadTokens(){
+	  lexer.ReadChar()		
+	  for lexer.HasNext(){
+  		fmt.Println(lexer.NextToken().ToString())
+  }
+}
+
+func newTokenFromChar(tokenType token.TokenType, charLiteral byte) token.Token{
+	return token.Token{Type:tokenType, Literal: string(charLiteral)}
+}
+
+func newTokenFromString(tokenType token.TokenType, strLiteral string) token.Token{
+	return token.Token{Type:tokenType, Literal: strLiteral}
+}
+
+func isLetter(char byte) bool{
+	return (char>='a' && char <='z')||(char>='A'&&char<='Z')|| char=='_'
 }
 
