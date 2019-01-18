@@ -5,6 +5,7 @@ import (
   	"fmt"
   	"Dumbledore/lexer"
 )
+//comment
 
 func main(){
   fmt.Println("It has known magic.")
@@ -17,5 +18,6 @@ func main(){
   	}
   
   lex.ReadTokens()
+
 
 }
