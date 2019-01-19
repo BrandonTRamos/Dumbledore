@@ -77,6 +77,8 @@ func (lexer *Lexer) NextToken() token.Token {
 		tok = newTokenFromChar(token.PLUS, lexer.ch)
 	case '.':
 		tok = newTokenFromChar(token.DOT, lexer.ch)
+	case ';':
+		tok = newTokenFromChar(token.SEMICOLON, lexer.ch)
 	default:
 		if isLetter(lexer.ch) {
 			identifier, tokenType := lexer.readIdentifier()
