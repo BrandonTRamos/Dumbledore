@@ -25,8 +25,8 @@ const (
 	LBRACE       TokenType = "LBRACE"
 	RBRACE       TokenType = "RBRACE"
 	DOT          TokenType = "DOT"
-	GT           TokenType = "GREATERTHAN"
-	LT           TokenType = "LESSTHAN"
+	GT           TokenType = "GREATER_THAN"
+	LT           TokenType = "LESS_THAN"
 	EXCLAIMATION TokenType = "EXCLAIMATION"
 	MINUS        TokenType = "MINUS"
 

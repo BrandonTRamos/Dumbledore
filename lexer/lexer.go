@@ -52,14 +52,14 @@ func (lexer *Lexer) ReadChar() {
 	lexer.col += 1
 }
 
-func (lexer *Lexer) readIdentifier() (token.TokenType, string) {
+func (lexer *Lexer) readIdentifier() (token.Token, error) {
 	beginIndex := lexer.currentPosition
 	for isLetter(lexer.ch) {
 		lexer.ReadChar()
 	}
 	identifier := string(lexer.input[beginIndex:lexer.currentPosition])
 	tokenType := token.LookupKeywords(identifier)
-	return tokenType, identifier
+	return token.Token{tokenType, identifier}, nil
 }
 
 func (lexer *Lexer) readNumber() (token.Token, error) {
@@ -76,7 +76,7 @@ func (lexer *Lexer) readNumber() (token.Token, error) {
 		return token.Token{token.ERROR, numberString}, &LexerError{NumberFormatError, lexer.line, beginCol, numberString}
 	}
 
-	tok = newTokenFromString(tokenType, numberString)
+	tok = token.Token{tokenType, numberString}
 	return tok, nil
 }
 
@@ -113,14 +113,14 @@ func (lexer *Lexer) NextToken() (token.Token, error) {
 		tok = newTokenFromChar(token.SEMICOLON, lexer.ch)
 	case '.':
 		if isNumber(lexer.input[lexer.nextPosition]) {
-			tok, numErr := lexer.readNumber()
-			return tok, numErr
+			numTok, numErr := lexer.readNumber()
+			return numTok, numErr
 		}
 		tok = newTokenFromChar(token.DOT, lexer.ch)
 	default:
 		if isLetter(lexer.ch) {
-			identifier, tokenType := lexer.readIdentifier()
-			return newTokenFromString(identifier, tokenType), nil
+			indentToken, indentErr := lexer.readIdentifier()
+			return indentToken, indentErr
 		} else if isNumber(lexer.ch) {
 			tok, numErr := lexer.readNumber()
 			return tok, numErr
@@ -157,10 +157,6 @@ func (lexer *Lexer) ReadTokens() {
 
 func newTokenFromChar(tokenType token.TokenType, charLiteral byte) token.Token {
 	return token.Token{Type: tokenType, Literal: string(charLiteral)}
-}
-
-func newTokenFromString(tokenType token.TokenType, strLiteral string) token.Token {
-	return token.Token{Type: tokenType, Literal: strLiteral}
 }
 
 func isLetter(char byte) bool {
