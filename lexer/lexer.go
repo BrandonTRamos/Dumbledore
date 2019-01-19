@@ -37,6 +37,7 @@ func (lexer *Lexer) HasNext() bool {
 }
 
 func (lexer *Lexer) ReadChar() {
+
 	if lexer.nextPosition >= len(lexer.input) {
 		lexer.ch = 0
 	} else {
@@ -44,6 +45,26 @@ func (lexer *Lexer) ReadChar() {
 	}
 	lexer.currentPosition = lexer.nextPosition
 	lexer.nextPosition += 1
+}
+
+func (lexer *Lexer) readIdentifier() (token.TokenType, string) {
+	beginIndex := lexer.currentPosition
+	for isLetter(lexer.ch) {
+		lexer.ReadChar()
+	}
+	identifier := lexer.input[beginIndex:lexer.currentPosition]
+	tokenType := token.LookupKeywords(identifier)
+	return tokenType, identifier
+}
+
+func (lexer *Lexer) readNumber() (token.TokenType, string) {
+	beginIndex := lexer.currentPosition
+	for isNumber(lexer.ch) {
+		lexer.ReadChar()
+	}
+	numberString := lexer.input[beginIndex:lexer.currentPosition]
+	tokenType := token.CheckNumberType(numberString)
+	return tokenType, numberString
 }
 
 func (lexer *Lexer) NextToken() token.Token {
@@ -54,9 +75,15 @@ func (lexer *Lexer) NextToken() token.Token {
 		tok = newTokenFromChar(token.ASSIGN, lexer.ch)
 	case '+':
 		tok = newTokenFromChar(token.PLUS, lexer.ch)
+	case '.':
+		tok = newTokenFromChar(token.DOT, lexer.ch)
 	default:
 		if isLetter(lexer.ch) {
-			tok = newTokenFromChar(token.IDENTIFIER, lexer.ch)
+			identifier, tokenType := lexer.readIdentifier()
+			return newTokenFromString(identifier, tokenType)
+		} else if isNumber(lexer.ch) {
+			numberString, tokenType := lexer.readNumber()
+			return newTokenFromString(numberString, tokenType)
 		} else {
 			fmt.Printf("Illegal char byte (hex notation): %x\n", lexer.ch)
 			tok = newTokenFromChar(token.ILLEGAL, lexer.ch)
@@ -90,4 +117,8 @@ func newTokenFromString(tokenType token.TokenType, strLiteral string) token.Toke
 
 func isLetter(char byte) bool {
 	return (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') || char == '_'
+}
+
+func isNumber(char byte) bool {
+	return (char >= '0' && char <= '9') || char == '.'
 }

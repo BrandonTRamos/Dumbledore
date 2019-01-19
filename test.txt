@@ -1,1 +1,1 @@
-this is a test file !
+var myNum = 123.75
