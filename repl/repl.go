@@ -15,8 +15,9 @@ func Run() {
 		if !scanned {
 			return
 		}
-		input := scanner.Text()
-		if input == "exit" || input == "quit" || input == "exit()" || input == "quit()" {
+		input := scanner.Bytes()
+		inputStr := string(input)
+		if inputStr == "exit" || inputStr == "quit" || inputStr == "exit()" || inputStr == "quit()" {
 			os.Exit(0)
 		}
 		lex := lexer.NewLexerFromString(input)

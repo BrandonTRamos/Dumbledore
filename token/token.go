@@ -9,6 +9,7 @@ type TokenType string
 
 const (
 	ILLEGAL    TokenType = "ILLEGAL"
+	ERROR      TokenType = "ERROR"
 	EOF        TokenType = "EOF"
 	IDENTIFIER TokenType = "INDENTIFIER"
 	INT        TokenType = "INT"

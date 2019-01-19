@@ -8,7 +8,7 @@ import (
 )
 
 type Lexer struct {
-	input           string
+	input           []byte
 	currentPosition int
 	nextPosition    int
 	ch              byte
@@ -16,7 +16,7 @@ type Lexer struct {
 	col             int
 }
 
-func NewLexerFromString(input string) *Lexer {
+func NewLexerFromString(input []byte) *Lexer {
 	return &Lexer{input: input, line: 1, col: 0}
 }
 
@@ -27,7 +27,7 @@ func NewLexerFromFile(fileName string) *Lexer {
 	}
 	fmt.Println(bytes)
 
-	return &Lexer{input: string(bytes), line: 1, col: 0}
+	return &Lexer{input: bytes, line: 1, col: 0}
 }
 
 func (lexer *Lexer) HasNext() bool {
@@ -57,7 +57,7 @@ func (lexer *Lexer) readIdentifier() (token.TokenType, string) {
 	for isLetter(lexer.ch) {
 		lexer.ReadChar()
 	}
-	identifier := lexer.input[beginIndex:lexer.currentPosition]
+	identifier := string(lexer.input[beginIndex:lexer.currentPosition])
 	tokenType := token.LookupKeywords(identifier)
 	return tokenType, identifier
 }
@@ -69,11 +69,11 @@ func (lexer *Lexer) readNumber() (token.Token, error) {
 	for isNumber(lexer.ch) {
 		lexer.ReadChar()
 	}
-	numberString := lexer.input[beginIndex:lexer.currentPosition]
+	numberString := string(lexer.input[beginIndex:lexer.currentPosition])
 	tokenType := token.CheckNumberType(numberString)
 
 	if strings.Count(numberString, ".") > 1 {
-		return token.Token{token.ILLEGAL, numberString}, &LexerError{NumberFormatError, lexer.line, beginCol, numberString}
+		return token.Token{token.ERROR, numberString}, &LexerError{NumberFormatError, lexer.line, beginCol, numberString}
 	}
 
 	tok = newTokenFromString(tokenType, numberString)
