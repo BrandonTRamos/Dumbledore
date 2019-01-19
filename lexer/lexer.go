@@ -85,18 +85,38 @@ func (lexer *Lexer) NextToken() (token.Token, error) {
 	var err error
 	lexer.skipWhiteSpace()
 	switch lexer.ch {
+	case '}':
+		tok = newTokenFromChar(token.RBRACE, lexer.ch)
+	case '{':
+		tok = newTokenFromChar(token.LBRACE, lexer.ch)
+	case ')':
+		tok = newTokenFromChar(token.RPAREN, lexer.ch)
+	case '(':
+		tok = newTokenFromChar(token.LPAREN, lexer.ch)
+	case '/':
+		tok = newTokenFromChar(token.SLASH, lexer.ch)
+	case '*':
+		tok = newTokenFromChar(token.ASTERIK, lexer.ch)
+	case '<':
+		tok = newTokenFromChar(token.LT, lexer.ch)
+	case '>':
+		tok = newTokenFromChar(token.GT, lexer.ch)
+	case '!':
+		tok = newTokenFromChar(token.EXCLAIMATION, lexer.ch)
 	case '=':
 		tok = newTokenFromChar(token.ASSIGN, lexer.ch)
 	case '+':
 		tok = newTokenFromChar(token.PLUS, lexer.ch)
+	case '-':
+		tok = newTokenFromChar(token.MINUS, lexer.ch)
+	case ';':
+		tok = newTokenFromChar(token.SEMICOLON, lexer.ch)
 	case '.':
 		if isNumber(lexer.input[lexer.nextPosition]) {
 			tok, numErr := lexer.readNumber()
 			return tok, numErr
 		}
 		tok = newTokenFromChar(token.DOT, lexer.ch)
-	case ';':
-		tok = newTokenFromChar(token.SEMICOLON, lexer.ch)
 	default:
 		if isLetter(lexer.ch) {
 			identifier, tokenType := lexer.readIdentifier()
