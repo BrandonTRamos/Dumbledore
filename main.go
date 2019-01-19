@@ -2,7 +2,7 @@ package main
 
 import (
 	"Dumbledore/lexer"
-	"bufio"
+	"Dumbledore/repl"
 	"fmt"
 	"os"
 )
@@ -13,27 +13,11 @@ func main() {
 	fmt.Println("-------------------\n")
 	var lex *lexer.Lexer
 	if len(os.Args) == 1 {
-		repl()
+		repl.Run()
 
 	} else {
 		lex = lexer.NewLexerFromFile(os.Args[1])
 		lex.ReadTokens()
 	}
 
-}
-
-func repl() {
-	scanner := bufio.NewScanner(os.Stdin)
-	for {
-		fmt.Printf(">>> ")
-		scanned := scanner.Scan()
-		if !scanned {
-			return
-		}
-		input := scanner.Text()
-		lex := lexer.NewLexerFromString(input)
-		fmt.Println("")
-		lex.ReadTokens()
-		fmt.Println("")
-	}
 }

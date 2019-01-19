@@ -1,2 +1,0 @@
-var myNum = 123.75
-var x = "blah"
