@@ -11,7 +11,7 @@ type Lexer struct {
 	input           []byte
 	currentPosition int
 	nextPosition    int
-	ch              byte
+	CH              byte
 	line            int
 	col             int
 }
@@ -25,14 +25,14 @@ func NewLexerFromFile(fileName string) *Lexer {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(bytes)
-
-	return &Lexer{input: bytes, line: 1, col: 0}
+	lex := &Lexer{input: bytes, line: 1, col: 0}
+	lex.readChar()
+	return lex
 }
 
 func (lexer *Lexer) HasNext() bool {
 	if lexer.currentPosition >= len(lexer.input) {
-		lexer.ch = 0
+		lexer.CH = 0
 		return false
 	}
 
@@ -43,9 +43,9 @@ func (lexer *Lexer) HasNext() bool {
 func (lexer *Lexer) readChar() {
 
 	if lexer.nextPosition >= len(lexer.input) {
-		lexer.ch = 0
+		lexer.CH = 0
 	} else {
-		lexer.ch = lexer.input[lexer.nextPosition]
+		lexer.CH = lexer.input[lexer.nextPosition]
 	}
 	lexer.currentPosition = lexer.nextPosition
 	lexer.nextPosition += 1
@@ -54,7 +54,7 @@ func (lexer *Lexer) readChar() {
 
 func (lexer *Lexer) readIdentifier() (token.Token, error) {
 	beginIndex := lexer.currentPosition
-	for isLetter(lexer.ch) {
+	for isLetter(lexer.CH) {
 		lexer.readChar()
 	}
 	identifier := string(lexer.input[beginIndex:lexer.currentPosition])
@@ -66,7 +66,7 @@ func (lexer *Lexer) readNumber() (token.Token, error) {
 	beginCol := lexer.col
 	beginIndex := lexer.currentPosition
 	var tok token.Token
-	for isNumber(lexer.ch) {
+	for isNumber(lexer.CH) {
 		lexer.readChar()
 	}
 	numberString := string(lexer.input[beginIndex:lexer.currentPosition])
@@ -91,29 +91,31 @@ func (lexer *Lexer) nextChar() byte {
 func (lexer *Lexer) NextToken() (token.Token, error) {
 	var tok token.Token
 	lexer.skipWhiteSpace()
-	switch lexer.ch {
+	switch lexer.CH {
+	case 0:
+		tok = newTokenFromChar(token.EOF, lexer.CH)
 	case '}':
-		tok = newTokenFromChar(token.RBRACE, lexer.ch)
+		tok = newTokenFromChar(token.RBRACE, lexer.CH)
 	case '{':
-		tok = newTokenFromChar(token.LBRACE, lexer.ch)
+		tok = newTokenFromChar(token.LBRACE, lexer.CH)
 	case ')':
-		tok = newTokenFromChar(token.RPAREN, lexer.ch)
+		tok = newTokenFromChar(token.RPAREN, lexer.CH)
 	case '(':
-		tok = newTokenFromChar(token.LPAREN, lexer.ch)
+		tok = newTokenFromChar(token.LPAREN, lexer.CH)
 	case '/':
-		tok = newTokenFromChar(token.SLASH, lexer.ch)
+		tok = newTokenFromChar(token.SLASH, lexer.CH)
 	case '*':
-		tok = newTokenFromChar(token.ASTERIK, lexer.ch)
+		tok = newTokenFromChar(token.ASTERIK, lexer.CH)
 	case '<':
-		tok = newTokenFromChar(token.LT, lexer.ch)
+		tok = newTokenFromChar(token.LT, lexer.CH)
 	case '>':
-		tok = newTokenFromChar(token.GT, lexer.ch)
+		tok = newTokenFromChar(token.GT, lexer.CH)
 	case '!':
 		if lexer.nextChar() == '=' {
 			tok = token.Token{token.NOTEQUAL, "!="}
 			lexer.readChar()
 		} else {
-			tok = newTokenFromChar(token.EXCLAIMATION, lexer.ch)
+			tok = newTokenFromChar(token.EXCLAIMATION, lexer.CH)
 		}
 
 	case '=':
@@ -121,30 +123,30 @@ func (lexer *Lexer) NextToken() (token.Token, error) {
 			tok = token.Token{token.EQUAL, "=="}
 			lexer.readChar()
 		} else {
-			tok = newTokenFromChar(token.ASSIGN, lexer.ch)
+			tok = newTokenFromChar(token.ASSIGN, lexer.CH)
 		}
 	case '+':
-		tok = newTokenFromChar(token.PLUS, lexer.ch)
+		tok = newTokenFromChar(token.PLUS, lexer.CH)
 	case '-':
-		tok = newTokenFromChar(token.MINUS, lexer.ch)
+		tok = newTokenFromChar(token.MINUS, lexer.CH)
 	case ';':
-		tok = newTokenFromChar(token.SEMICOLON, lexer.ch)
+		tok = newTokenFromChar(token.SEMICOLON, lexer.CH)
 	case '.':
 		if isNumber(lexer.input[lexer.nextPosition]) {
 			numTok, numErr := lexer.readNumber()
 			return numTok, numErr
 		}
-		tok = newTokenFromChar(token.DOT, lexer.ch)
+		tok = newTokenFromChar(token.DOT, lexer.CH)
 	default:
-		if isLetter(lexer.ch) {
+		if isLetter(lexer.CH) {
 			indentToken, indentErr := lexer.readIdentifier()
 			return indentToken, indentErr
-		} else if isNumber(lexer.ch) {
+		} else if isNumber(lexer.CH) {
 			tok, numErr := lexer.readNumber()
 			return tok, numErr
 		} else {
-			fmt.Printf("Illegal char byte (ascii number): %d\n", lexer.ch)
-			tok = newTokenFromChar(token.ILLEGAL, lexer.ch)
+			fmt.Printf("Illegal char byte (ascii number): %d\n", lexer.CH)
+			tok = newTokenFromChar(token.ILLEGAL, lexer.CH)
 		}
 
 	}
@@ -153,8 +155,8 @@ func (lexer *Lexer) NextToken() (token.Token, error) {
 }
 
 func (lexer *Lexer) skipWhiteSpace() {
-	for lexer.ch == ' ' || lexer.ch == '\n' || lexer.ch == '\r' || lexer.ch == '\t' {
-		if lexer.ch == '\n' {
+	for lexer.CH == ' ' || lexer.CH == '\n' || lexer.CH == '\r' || lexer.CH == '\t' {
+		if lexer.CH == '\n' {
 			lexer.line += 1
 			lexer.col = 0
 		}

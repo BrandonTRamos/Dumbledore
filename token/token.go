@@ -35,12 +35,12 @@ const (
 	//keywords
 	FUNCTION TokenType = "KEYWORD: FUNCTION"
 	VAR      TokenType = "KEYWORD: VAR"
-	IF       TokenType = "IF"
-	ELSE     TokenType = "ESLE"
-	ELIF     TokenType = "ELIF"
-	TRUE     TokenType = "TRUE"
-	FALSE    TokenType = "FALSE"
-	RETURN   TokenType = "RETURN"
+	IF       TokenType = "KEYWORD: IF"
+	ELSE     TokenType = "KEYWORD: ESLE"
+	ELIF     TokenType = "KEYWORD: ELIF"
+	TRUE     TokenType = "KEYWORD: TRUE"
+	FALSE    TokenType = "KEYWORD: FALSE"
+	RETURN   TokenType = "KEYWORD: RETURN"
 )
 
 var keywords = map[string]TokenType{

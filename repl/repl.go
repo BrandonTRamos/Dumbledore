@@ -9,6 +9,9 @@ import (
 
 func Run() {
 	scanner := bufio.NewScanner(os.Stdin)
+	fmt.Println("Welcome to the Dumbledore Interpreter...")
+	fmt.Println("It has known magic.")
+	fmt.Println("-------------------\n")
 	for {
 		fmt.Printf(">>> ")
 		scanned := scanner.Scan()
