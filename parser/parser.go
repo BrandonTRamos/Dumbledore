@@ -4,6 +4,7 @@ import (
 	"Dumbledore/ast"
 	"Dumbledore/lexer"
 	"Dumbledore/token"
+	"log"
 )
 
 type Parser struct {
@@ -22,7 +23,10 @@ func New(lexer *lexer.Lexer) *Parser {
 
 func (parser *Parser) getNextToken() {
 	parser.CurrentToken = parser.PeekToken
-	nextTok, _ := parser.Lexer.NextToken()
+	nextTok, err := parser.Lexer.NextToken()
+	if err != nil {
+		log.Fatal(err)
+	}
 	parser.PeekToken = nextTok
 
 }

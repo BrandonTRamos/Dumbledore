@@ -145,8 +145,7 @@ func (lexer *Lexer) NextToken() (token.Token, error) {
 			tok, numErr := lexer.readNumber()
 			return tok, numErr
 		} else {
-			fmt.Printf("Illegal char byte (ascii number): %d\n", lexer.ch)
-			tok = newTokenFromChar(token.ILLEGAL, lexer.ch)
+			return newTokenFromChar(token.ILLEGAL, lexer.ch), &LexerError{lexerErrorType: UnexpectedToken, line: lexer.Line, col: lexer.Col, value: string(lexer.ch)}
 		}
 
 	}
