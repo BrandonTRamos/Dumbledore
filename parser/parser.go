@@ -4,17 +4,17 @@ import (
 	"Dumbledore/ast"
 	"Dumbledore/lexer"
 	"Dumbledore/token"
-	"log"
 )
 
 type Parser struct {
 	Lexer        *lexer.Lexer
 	CurrentToken token.Token
 	PeekToken    token.Token
+	Errors       []error
 }
 
 func New(lexer *lexer.Lexer) *Parser {
-	parser := &Parser{Lexer: lexer}
+	parser := &Parser{Lexer: lexer, Errors: []error{}}
 	parser.getNextToken()
 	parser.getNextToken()
 	return parser
@@ -33,7 +33,7 @@ func (parser *Parser) ParseProgram() *ast.Program {
 	for parser.CurrentToken.Type != token.EOF {
 		stmt, err := parser.parseStatement()
 		if err != nil {
-			log.Fatal(err)
+			parser.Errors = append(parser.Errors, err)
 		}
 
 		if stmt != nil {
@@ -58,7 +58,7 @@ func (parser *Parser) parseVarStatement() (*ast.VarStatement, error) {
 	varStatement := &ast.VarStatement{VarToken: parser.CurrentToken}
 
 	if parser.PeekToken.Type != token.IDENTIFIER {
-		return varStatement, &ParserError{}
+		return varStatement, &ParserError{errorType: MISSING_IDENT, message: "Var declaration missing variable name", line: parser.Lexer.Line}
 	}
 
 	for parser.CurrentToken.Type != token.SEMICOLON {
