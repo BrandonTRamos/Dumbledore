@@ -40,7 +40,7 @@ func (lexer *Lexer) HasNext() bool {
 
 }
 
-func (lexer *Lexer) ReadChar() {
+func (lexer *Lexer) readChar() {
 
 	if lexer.nextPosition >= len(lexer.input) {
 		lexer.ch = 0
@@ -55,7 +55,7 @@ func (lexer *Lexer) ReadChar() {
 func (lexer *Lexer) readIdentifier() (token.Token, error) {
 	beginIndex := lexer.currentPosition
 	for isLetter(lexer.ch) {
-		lexer.ReadChar()
+		lexer.readChar()
 	}
 	identifier := string(lexer.input[beginIndex:lexer.currentPosition])
 	tokenType := token.LookupKeywords(identifier)
@@ -67,7 +67,7 @@ func (lexer *Lexer) readNumber() (token.Token, error) {
 	beginIndex := lexer.currentPosition
 	var tok token.Token
 	for isNumber(lexer.ch) {
-		lexer.ReadChar()
+		lexer.readChar()
 	}
 	numberString := string(lexer.input[beginIndex:lexer.currentPosition])
 	tokenType := token.CheckNumberType(numberString)
@@ -80,9 +80,16 @@ func (lexer *Lexer) readNumber() (token.Token, error) {
 	return tok, nil
 }
 
+func (lexer *Lexer) nextChar() byte {
+	if lexer.nextPosition >= len(lexer.input) {
+		return 0
+	} else {
+		return lexer.input[lexer.nextPosition]
+	}
+}
+
 func (lexer *Lexer) NextToken() (token.Token, error) {
 	var tok token.Token
-	var err error
 	lexer.skipWhiteSpace()
 	switch lexer.ch {
 	case '}':
@@ -102,9 +109,20 @@ func (lexer *Lexer) NextToken() (token.Token, error) {
 	case '>':
 		tok = newTokenFromChar(token.GT, lexer.ch)
 	case '!':
-		tok = newTokenFromChar(token.EXCLAIMATION, lexer.ch)
+		if lexer.nextChar() == '=' {
+			tok = token.Token{token.NOTEQUAL, "!="}
+			lexer.readChar()
+		} else {
+			tok = newTokenFromChar(token.EXCLAIMATION, lexer.ch)
+		}
+
 	case '=':
-		tok = newTokenFromChar(token.ASSIGN, lexer.ch)
+		if lexer.nextChar() == '=' {
+			tok = token.Token{token.EQUAL, "=="}
+			lexer.readChar()
+		} else {
+			tok = newTokenFromChar(token.ASSIGN, lexer.ch)
+		}
 	case '+':
 		tok = newTokenFromChar(token.PLUS, lexer.ch)
 	case '-':
@@ -130,8 +148,8 @@ func (lexer *Lexer) NextToken() (token.Token, error) {
 		}
 
 	}
-	lexer.ReadChar()
-	return tok, err
+	lexer.readChar()
+	return tok, nil
 }
 
 func (lexer *Lexer) skipWhiteSpace() {
@@ -140,12 +158,12 @@ func (lexer *Lexer) skipWhiteSpace() {
 			lexer.line += 1
 			lexer.col = 0
 		}
-		lexer.ReadChar()
+		lexer.readChar()
 	}
 }
 
 func (lexer *Lexer) ReadTokens() {
-	lexer.ReadChar()
+	lexer.readChar()
 	for lexer.HasNext() {
 		tok, err := lexer.NextToken()
 		if err != nil {
@@ -154,6 +172,8 @@ func (lexer *Lexer) ReadTokens() {
 		fmt.Println(tok.ToString())
 	}
 }
+
+//static functions
 
 func newTokenFromChar(tokenType token.TokenType, charLiteral byte) token.Token {
 	return token.Token{Type: tokenType, Literal: string(charLiteral)}

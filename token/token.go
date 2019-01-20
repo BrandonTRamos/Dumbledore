@@ -29,6 +29,8 @@ const (
 	LT           TokenType = "LESS_THAN"
 	EXCLAIMATION TokenType = "EXCLAIMATION"
 	MINUS        TokenType = "MINUS"
+	EQUAL        TokenType = "EQUAL"
+	NOTEQUAL     TokenType = "NOT_EQUAL"
 
 	//keywords
 	FUNCTION TokenType = "KEYWORD: FUNCTION"
@@ -57,6 +59,11 @@ type Token struct {
 	Literal string
 }
 
+func (t Token) ToString() string {
+	return fmt.Sprintf("Token { Type: %s ,  Literal: '%s'}", t.Type, t.Literal)
+}
+
+//static functions
 func LookupKeywords(indentifier string) TokenType {
 	tokenType, foundMatch := keywords[indentifier]
 	if foundMatch {
@@ -70,8 +77,4 @@ func CheckNumberType(number string) TokenType {
 		return DOUBLE
 	}
 	return INT
-}
-
-func (t Token) ToString() string {
-	return fmt.Sprintf("Token { Type: %s ,  Literal: '%s'}", t.Type, t.Literal)
 }
