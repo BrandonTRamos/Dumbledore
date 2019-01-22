@@ -53,6 +53,8 @@ func (parser *Parser) parseStatement() (ast.Statement, error) {
 	switch parser.CurrentToken.Type {
 	case token.VAR:
 		return parser.parseVarStatement()
+	case token.RETURN:
+		return parser.parseReturnStatement()
 	default:
 		return nil, nil
 	}
@@ -70,4 +72,14 @@ func (parser *Parser) parseVarStatement() (*ast.VarStatement, error) {
 		parser.getNextToken()
 	}
 	return varStatement, nil
+}
+
+func (parser *Parser) parseReturnStatement() (*ast.ReturnStatement, error) {
+	returnStatement := &ast.ReturnStatement{ReturnToken: parser.CurrentToken}
+
+	parser.getNextToken()
+	for parser.CurrentToken.Type != token.SEMICOLON && parser.CurrentToken.Type != token.EOF {
+		parser.getNextToken()
+	}
+	return returnStatement, nil
 }

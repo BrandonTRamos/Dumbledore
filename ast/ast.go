@@ -57,3 +57,15 @@ func (vs *VarStatement) ToString() string {
 
 	return fmt.Sprintf("VarStatement{%s,%s,Expression {}}", vs.VarToken.ToString(), vs.Name.toString())
 }
+
+type ReturnStatement struct {
+	ReturnToken token.Token
+	ReturnValue Expression
+}
+
+func (rs *ReturnStatement) statementNode()       {}
+func (rs *ReturnStatement) TokenLiteral() string { return rs.ReturnToken.Literal }
+func (rs *ReturnStatement) ToString() string {
+
+	return fmt.Sprintf("ReturnStatement{%s,Expression {}}", rs.ReturnToken.ToString())
+}
