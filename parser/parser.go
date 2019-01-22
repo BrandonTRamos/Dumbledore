@@ -60,12 +60,13 @@ func (parser *Parser) parseStatement() (ast.Statement, error) {
 
 func (parser *Parser) parseVarStatement() (*ast.VarStatement, error) {
 	varStatement := &ast.VarStatement{VarToken: parser.CurrentToken}
-
 	if parser.PeekToken.Type != token.IDENTIFIER {
-		return varStatement, &ParserError{errorType: MISSING_IDENT, message: "Var declaration missing variable name", line: parser.Lexer.Line}
+		return nil, &ParserError{errorType: MISSING_IDENT, message: "Var declaration missing variable name", line: parser.Lexer.Line}
 	}
+	parser.getNextToken()
+	varStatement.Name = &ast.Identifier{IdentToken: parser.CurrentToken, Value: parser.CurrentToken.Literal}
 
-	for parser.CurrentToken.Type != token.SEMICOLON {
+	for parser.CurrentToken.Type != token.SEMICOLON && parser.CurrentToken.Type != token.EOF {
 		parser.getNextToken()
 	}
 	return varStatement, nil

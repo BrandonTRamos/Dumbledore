@@ -39,6 +39,9 @@ type Identifier struct {
 
 func (i *Identifier) expressionNode()      {}
 func (i *Identifier) TokenLiteral() string { return i.IdentToken.Literal }
+func (i *Identifier) toString() string {
+	return fmt.Sprintf("Idenfifier {IdentToken: %s}", i.IdentToken.ToString())
+}
 
 // statements
 
@@ -52,5 +55,5 @@ func (vs *VarStatement) statementNode()       {}
 func (vs *VarStatement) TokenLiteral() string { return vs.VarToken.Literal }
 func (vs *VarStatement) ToString() string {
 
-	return fmt.Sprintf("VarStatement{nil,nil}")
+	return fmt.Sprintf("VarStatement{%s,%s,Expression {}}", vs.VarToken.ToString(), vs.Name.toString())
 }
