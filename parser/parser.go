@@ -4,7 +4,6 @@ import (
 	"Dumbledore/ast"
 	"Dumbledore/lexer"
 	"Dumbledore/token"
-	"fmt"
 	"log"
 	"strconv"
 )
@@ -45,6 +44,8 @@ func New(lexer *lexer.Lexer) *Parser {
 	parser.prefixParserFns[token.IDENTIFIER] = parser.parseIdentifier
 	parser.prefixParserFns[token.INT] = parser.parseIntegerLiteral
 	parser.prefixParserFns[token.DOUBLE] = parser.parseDoubleLiteral
+	parser.prefixParserFns[token.EXCLAIMATION] = parser.parsePrefixExpression
+	parser.prefixParserFns[token.MINUS] = parser.parsePrefixExpression
 
 	parser.getNextToken()
 	parser.getNextToken()
@@ -158,7 +159,6 @@ func (parser *Parser) parseIntegerLiteral() (ast.Expression, error) {
 }
 
 func (parser *Parser) parseDoubleLiteral() (ast.Expression, error) {
-	fmt.Println("parsing double")
 	doubleLiteral := &ast.DoubleLiteral{DoubleToken: parser.CurrentToken}
 
 	value, err := strconv.ParseFloat(parser.CurrentToken.Literal, 64)
@@ -170,4 +170,16 @@ func (parser *Parser) parseDoubleLiteral() (ast.Expression, error) {
 	doubleLiteral.Value = value
 
 	return doubleLiteral, nil
+}
+
+func (parser *Parser) parsePrefixExpression() (ast.Expression, error) {
+	expression := &ast.PrefixExpression{
+		PrefixToken: parser.CurrentToken,
+		Operator:    parser.CurrentToken.Literal,
+	}
+
+	parser.getNextToken()
+	expression.Right = parser.parseExpression(PREFIX)
+	return expression, nil
+
 }

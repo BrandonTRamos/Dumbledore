@@ -78,7 +78,7 @@ type ExpressionStatement struct {
 func (es *ExpressionStatement) statementNode()       {}
 func (es *ExpressionStatement) TokenLiteral() string { return es.ExpressionToken.Literal }
 func (es *ExpressionStatement) ToString() string {
-	return fmt.Sprintf("Expression {%s}", es.ExpressionToken.ToString())
+	return fmt.Sprintf("Expression {%s,Right{%s}}", es.ExpressionToken.ToString(), es.Expression.ToString())
 }
 func (es *ExpressionStatement) expressionNode() {
 
@@ -101,3 +101,15 @@ type DoubleLiteral struct {
 func (dl *DoubleLiteral) expressionNode()      {}
 func (dl *DoubleLiteral) TokenLiteral() string { return dl.DoubleToken.Literal }
 func (dl *DoubleLiteral) ToString() string     { return dl.DoubleToken.Literal }
+
+type PrefixExpression struct {
+	PrefixToken token.Token
+	Operator    string
+	Right       Expression
+}
+
+func (pe *PrefixExpression) expressionNode()      {}
+func (pe *PrefixExpression) TokenLiteral() string { return pe.PrefixToken.Literal }
+func (pe *PrefixExpression) ToString() string {
+	return fmt.Sprintf("(%s%s)", pe.Operator, pe.Right.ToString())
+}
