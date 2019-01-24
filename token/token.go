@@ -60,7 +60,7 @@ type Token struct {
 }
 
 func (t Token) ToString() string {
-	return fmt.Sprintf("Token { Type: %s ,  Literal: '%s'}", t.Type, t.Literal)
+	return fmt.Sprintf("Token {Type: %s , Literal: '%s'}", t.Type, t.Literal)
 }
 
 //static functions

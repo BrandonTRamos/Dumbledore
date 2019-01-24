@@ -9,8 +9,6 @@ import (
 )
 
 func main() {
-	fmt.Println("Starting...")
-
 	if len(os.Args) == 1 {
 		repl.Run()
 	} else {

@@ -7,7 +7,8 @@ import (
 type ParserErrorType string
 
 const (
-	MISSING_IDENT ParserErrorType = "MISSING_IDENTIFIER"
+	MISSING_IDENT               ParserErrorType = "MISSING_IDENTIFIER"
+	MISSING_ASSIGNMENT_OPERATOR ParserErrorType = "MiSSING_ASSIGNMENT_OPERATOR"
 )
 
 type ParserError struct {
