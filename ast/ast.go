@@ -78,7 +78,7 @@ type ExpressionStatement struct {
 func (es *ExpressionStatement) statementNode()       {}
 func (es *ExpressionStatement) TokenLiteral() string { return es.ExpressionToken.Literal }
 func (es *ExpressionStatement) ToString() string {
-	return fmt.Sprintf("Expression {%s,Right{%s}}", es.ExpressionToken.ToString(), es.Expression.ToString())
+	return fmt.Sprintf("ExpressionToken {%s,Expression{%s}}", es.ExpressionToken.ToString(), es.Expression.ToString())
 }
 func (es *ExpressionStatement) expressionNode() {
 
@@ -124,5 +124,5 @@ type InfixExpression struct {
 func (ie *InfixExpression) expressionNode()      {}
 func (ie *InfixExpression) TokenLiteral() string { return ie.InfixToken.Literal }
 func (ie *InfixExpression) ToString() string {
-	return fmt.Sprintf("(%s %s %s)", ie.Left.ToString(), ie.Operator, ie.Right.ToString())
+	return fmt.Sprintf("InfixToken{ %s}, Left, Operator, Right=(%s, %s, %s)", ie.InfixToken.ToString(), ie.Left.ToString(), ie.Operator, ie.Right.ToString())
 }

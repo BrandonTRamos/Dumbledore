@@ -14,11 +14,22 @@ const (
 	LOWEST OperatorPrecedence = iota
 	EQUALS
 	LESSGREATER
-	SUM
+	SUMSUBTRACT
 	PRODUCTDIVIDE
 	PREFIX
 	CALL
 )
+
+var precedenses = map[token.TokenType]OperatorPrecedence{
+	token.EQUAL:    EQUALS,
+	token.NOTEQUAL: EQUALS,
+	token.LT:       LESSGREATER,
+	token.GT:       LESSGREATER,
+	token.PLUS:     SUMSUBTRACT,
+	token.MINUS:    SUMSUBTRACT,
+	token.SLASH:    PRODUCTDIVIDE,
+	token.ASTERIK:  PRODUCTDIVIDE,
+}
 
 type (
 	prefixParserFn func() (ast.Expression, error)
@@ -46,6 +57,16 @@ func New(lexer *lexer.Lexer) *Parser {
 	parser.prefixParserFns[token.DOUBLE] = parser.parseDoubleLiteral
 	parser.prefixParserFns[token.EXCLAIMATION] = parser.parsePrefixExpression
 	parser.prefixParserFns[token.MINUS] = parser.parsePrefixExpression
+
+	parser.infixParserFns = make(map[token.TokenType]infixParserFn)
+	parser.infixParserFns[token.PLUS] = parser.parseInfixExpression
+	parser.infixParserFns[token.MINUS] = parser.parseInfixExpression
+	parser.infixParserFns[token.SLASH] = parser.parseInfixExpression
+	parser.infixParserFns[token.ASTERIK] = parser.parseInfixExpression
+	parser.infixParserFns[token.EQUAL] = parser.parseInfixExpression
+	parser.infixParserFns[token.NOTEQUAL] = parser.parseInfixExpression
+	parser.infixParserFns[token.LT] = parser.parseInfixExpression
+	parser.infixParserFns[token.GT] = parser.parseInfixExpression
 
 	parser.getNextToken()
 	parser.getNextToken()
@@ -140,6 +161,16 @@ func (parser *Parser) parseExpression(precedence OperatorPrecedence) ast.Express
 
 	leftExpression, _ := prefix()
 
+	for parser.PeekToken.Type != token.SEMICOLON && parser.PeekToken.Type != token.EOF && precedence < parser.checkNextPrecedence() {
+		infixFn := parser.infixParserFns[parser.PeekToken.Type]
+
+		if infixFn == nil {
+			return leftExpression
+		}
+		parser.getNextToken()
+		leftExpression, _ = infixFn(leftExpression)
+	}
+
 	return leftExpression
 
 }
@@ -182,4 +213,34 @@ func (parser *Parser) parsePrefixExpression() (ast.Expression, error) {
 	expression.Right = parser.parseExpression(PREFIX)
 	return expression, nil
 
+}
+
+func (parser *Parser) currentPrecedence() OperatorPrecedence {
+	precedence, found := precedenses[parser.CurrentToken.Type]
+	if found {
+		return precedence
+	}
+	return LOWEST
+}
+
+func (parser *Parser) checkNextPrecedence() OperatorPrecedence {
+	precedence, found := precedenses[parser.PeekToken.Type]
+	if found {
+		return precedence
+	}
+	return LOWEST
+}
+
+func (parser *Parser) parseInfixExpression(left ast.Expression) (ast.Expression, error) {
+	expression := &ast.InfixExpression{
+		InfixToken: parser.CurrentToken,
+		Operator:   parser.CurrentToken.Literal,
+		Left:       left,
+	}
+
+	precedence := parser.currentPrecedence()
+	parser.getNextToken()
+	expression.Right = parser.parseExpression(precedence)
+
+	return expression, nil
 }

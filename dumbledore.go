@@ -44,6 +44,8 @@ func main() {
 			for _, statement := range program.Statements {
 				fmt.Println(statement.ToString())
 			}
+		default:
+			fmt.Println("Not a recognized command.")
 
 		}
 
