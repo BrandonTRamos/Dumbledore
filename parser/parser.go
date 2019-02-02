@@ -57,6 +57,8 @@ func New(lexer *lexer.Lexer) *Parser {
 	parser.prefixParserFns[token.DOUBLE] = parser.parseDoubleLiteral
 	parser.prefixParserFns[token.EXCLAIMATION] = parser.parsePrefixExpression
 	parser.prefixParserFns[token.MINUS] = parser.parsePrefixExpression
+	parser.prefixParserFns[token.TRUE] = parser.parseBooleanLiteral
+	parser.prefixParserFns[token.FALSE] = parser.parseBooleanLiteral
 
 	parser.infixParserFns = make(map[token.TokenType]infixParserFn)
 	parser.infixParserFns[token.PLUS] = parser.parseInfixExpression
@@ -123,9 +125,13 @@ func (parser *Parser) parseVarStatement() (*ast.VarStatement, error) {
 	if parser.PeekToken.Type != token.ASSIGN {
 		return nil, &ParserError{errorType: MISSING_ASSIGNMENT_OPERATOR, message: "Var declaration missing assignment operator '='", line: parser.Lexer.Line}
 	}
+
 	for parser.CurrentToken.Type != token.SEMICOLON && parser.CurrentToken.Type != token.EOF {
 		parser.getNextToken()
+		stmt, _ := parser.parseExpressionStatement()
+		varStatement.Value = stmt
 	}
+
 	return varStatement, nil
 }
 
@@ -201,6 +207,16 @@ func (parser *Parser) parseDoubleLiteral() (ast.Expression, error) {
 	doubleLiteral.Value = value
 
 	return doubleLiteral, nil
+}
+
+func (parser *Parser) parseBooleanLiteral() (ast.Expression, error) {
+	booleanLiteral := &ast.BooleanLiteral{BoolToken: parser.CurrentToken}
+	value, err := strconv.ParseBool(parser.CurrentToken.Literal)
+	if err != nil {
+		return nil, err
+	}
+	booleanLiteral.Value = value
+	return booleanLiteral, nil
 }
 
 func (parser *Parser) parsePrefixExpression() (ast.Expression, error) {

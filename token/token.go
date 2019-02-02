@@ -59,7 +59,7 @@ type Token struct {
 	Literal string
 }
 
-func (t Token) ToString() string {
+func (t Token) ToString(indentLevel int) string {
 	return fmt.Sprintf("Token {Type: %s , Literal: '%s'}", t.Type, t.Literal)
 }
 

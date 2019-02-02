@@ -23,7 +23,7 @@ func main() {
 			os.Exit(1)
 		}
 		for _, statement := range program.Statements {
-			fmt.Println(statement.ToString())
+			fmt.Println(statement.ToString(0))
 		}
 	case 3:
 		flag := os.Args[2]
@@ -42,7 +42,7 @@ func main() {
 				os.Exit(1)
 			}
 			for _, statement := range program.Statements {
-				fmt.Println(statement.ToString())
+				fmt.Println(statement.ToString(0))
 			}
 		default:
 			fmt.Println("Not a recognized command.")

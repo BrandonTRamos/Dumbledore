@@ -170,7 +170,7 @@ func (lexer *Lexer) ReadTokens() {
 		if err != nil {
 			fmt.Println(err)
 		}
-		fmt.Println(tok.ToString())
+		fmt.Println(tok.ToString(0))
 	}
 }
 
