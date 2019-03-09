@@ -145,3 +145,41 @@ func (ie *InfixExpression) ToString(indentLevel int) string {
 	// return "\n" + strings.Repeat("\t", indentLevel) + fmt.Sprintf("InfixToken{ %s}, \n\tLeft(%s),\n \tOperator(%s),\n \tRight(%s),\n", ie.InfixToken.ToString(indentLevel+1), ie.Left.ToString(indentLevel+1), ie.Operator, ie.Right.ToString(indentLevel+1))
 
 }
+
+type BlockStatement struct {
+	Token      token.Token
+	Statements []Statement
+}
+
+func (bs *BlockStatement) statementNode()       {}
+func (bs *BlockStatement) TokenLiteral() string { return bs.Token.Literal }
+func (bs *BlockStatement) ToString(indentLevel int) string {
+	str := ""
+	for _, statement := range bs.Statements {
+		str += statement.ToString(indentLevel)
+		str += "\n,\n"
+	}
+	return str
+}
+
+type IfExpression struct {
+	Token       token.Token
+	Condition   Expression
+	Consequence *BlockStatement
+	Alternative *BlockStatement
+}
+
+func (ie *IfExpression) expressionNode()      {}
+func (ie *IfExpression) TokenLiteral() string { return ie.Token.Literal }
+func (ie *IfExpression) ToString(indentLevel int) string {
+	str := "IF:"
+	str += ie.Condition.ToString(0)
+	str += "\nTHEN:\n"
+	str += ie.Consequence.ToString(1)
+
+	if ie.Alternative != nil {
+		str += "ELSE:\n"
+		str += ie.Alternative.ToString(1)
+	}
+	return str
+}

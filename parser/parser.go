@@ -4,6 +4,7 @@ import (
 	"Dumbledore/ast"
 	"Dumbledore/lexer"
 	"Dumbledore/token"
+	"fmt"
 	"log"
 	"strconv"
 )
@@ -60,6 +61,7 @@ func New(lexer *lexer.Lexer) *Parser {
 	parser.prefixParserFns[token.TRUE] = parser.parseBooleanLiteral
 	parser.prefixParserFns[token.FALSE] = parser.parseBooleanLiteral
 	parser.prefixParserFns[token.LPAREN] = parser.parseGroupedExpression
+	parser.prefixParserFns[token.IF] = parser.parseIfExpression
 
 	parser.infixParserFns = make(map[token.TokenType]infixParserFn)
 	parser.infixParserFns[token.PLUS] = parser.parseInfixExpression
@@ -270,5 +272,57 @@ func (parser *Parser) parseGroupedExpression() (ast.Expression, error) {
 		return nil, nil
 	}
 	parser.getNextToken()
+	return expression, nil
+}
+
+func (parser *Parser) parseBlockStatement() *ast.BlockStatement {
+	parser.getNextToken()
+	block := &ast.BlockStatement{Token: parser.CurrentToken, Statements: []ast.Statement{}}
+	for parser.CurrentToken.Type != token.RBRACE && parser.CurrentToken.Type != token.EOF {
+		stmt, err := parser.parseStatement()
+		if err != nil {
+			parser.Errors = append(parser.Errors, err)
+		}
+
+		if stmt != nil {
+			block.Statements = append(block.Statements, stmt)
+		}
+		parser.getNextToken()
+	}
+
+	return block
+}
+
+func (parser *Parser) parseIfExpression() (ast.Expression, error) {
+	expression := &ast.IfExpression{Token: parser.CurrentToken}
+	if parser.PeekToken.Type != token.LPAREN {
+		fmt.Println("If statement missing '('")
+		return nil, &ParserError{errorType: MALFORMED_IF_STATEMENT, message: "If statement missing '('", line: parser.Lexer.Line}
+	}
+	parser.getNextToken()
+	expression.Condition = parser.parseExpression(LOWEST)
+
+	if parser.CurrentToken.Type != token.RPAREN {
+		fmt.Println(parser.CurrentToken.ToString(0))
+		fmt.Println("If statement missing ')'")
+		return nil, &ParserError{errorType: MALFORMED_IF_STATEMENT, message: "If statement missing ')'", line: parser.Lexer.Line}
+	}
+	parser.getNextToken()
+	if parser.CurrentToken.Type != token.LBRACE {
+		fmt.Println("If statement missing '{'")
+		return nil, &ParserError{errorType: MALFORMED_IF_STATEMENT, message: "If statement missing '{'", line: parser.Lexer.Line}
+	}
+
+	expression.Consequence = parser.parseBlockStatement()
+
+	if parser.PeekToken.Type == token.ELSE {
+		parser.getNextToken()
+		if parser.PeekToken.Type != token.LBRACE {
+			return nil, &ParserError{errorType: MALFORMED_ELSE_STATEMENT, message: "Else statement missing '{'", line: parser.Lexer.Line}
+		}
+		parser.getNextToken()
+		expression.Alternative = parser.parseBlockStatement()
+	}
+
 	return expression, nil
 }
